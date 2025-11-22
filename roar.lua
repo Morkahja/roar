@@ -1,36 +1,46 @@
--- ROAR Addon (Turtle WoW / Vanilla 1.12)
--- Based on BuxbrewCharge, rewritten as ROAR with /roar slash command.
--- Account‑wide SavedVariables: ROARDB
+-- ROAR v1.0
+-- Turtle/Vanilla Lua 5.0 SAFE
+-- SavedVariables: ROARDB
 
 -------------------------------------------------
--- Emote pool for roaring moments
+-- Emote pool
 -------------------------------------------------
-local EMOTE_POOL = {
-  "ROAR",      -- /roar
-  "CHARGE",    -- /charge
-  "CHEER",     -- /cheer
-  "BORED",     -- /bored
-  "FLEX",      -- /flex
+local ROAR_EMOTES = {
+  "ROAR", "CHEER", "CHARGE", "FLEX", "BORED"
 }
 
 -------------------------------------------------
 -- State
 -------------------------------------------------
-local ROAR_SLOT = nil
-local LAST_ROAR = 0
-local ROAR_COOLDOWN = 20   -- default seconds
-local ROAR_CHANCE = 100    -- percent chance per activation
+local WATCH_SLOT = nil
+local LAST_EMOTE = 0
+local ROAR_COOLDOWN = 5
+local ROAR_CHANCE = 100
 
 -------------------------------------------------
 -- Helpers
 -------------------------------------------------
-local function chat(t)
-  if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cffdd6600ROAR:|r " .. t) end
+local function chat(msg)
+  if DEFAULT_CHAT_FRAME then
+    DEFAULT_CHAT_FRAME:AddMessage("|cffffaa33ROAR:|r " .. msg)
+  end
 end
 
 local function ensureDB()
   if type(ROARDB) ~= "table" then ROARDB = {} end
   return ROARDB
+end
+
+local loaded_once = false
+local function ensureLoaded()
+  if loaded_once then return end
+  loaded_once = true
+
+  local db = ensureDB()
+
+  WATCH_SLOT     = db.slot or WATCH_SLOT
+  ROAR_COOLDOWN  = db.cooldown or ROAR_COOLDOWN
+  ROAR_CHANCE    = db.chance or ROAR_CHANCE
 end
 
 local function pick(t)
@@ -39,84 +49,94 @@ local function pick(t)
   return t[math.random(1, n)]
 end
 
-local function doRoar()
+local function doRandomEmote()
   local now = GetTime()
-  if now - LAST_ROAR < ROAR_COOLDOWN then return end
-  if math.random(1,100) > ROAR_CHANCE then return end
+  if now - LAST_EMOTE < ROAR_COOLDOWN then return end
+  LAST_EMOTE = now
 
-  LAST_ROAR = now
-  local token = pick(EMOTE_POOL)
-  if token and DoEmote then DoEmote(token) end
+  if math.random(1, 100) <= ROAR_CHANCE then
+    local e = pick(ROAR_EMOTES)
+    if e then DoEmote(e) end
+  end
+end
+
+-------------------------------------------------
+-- Lua 5.0-safe command splitter  
+-- NO string.match — only string.find
+-------------------------------------------------
+local function split_cmd(raw)
+  local s = raw or ""
+  s = string.gsub(s, "^%s+", "")
+  local _, _, cmd, rest = string.find(s, "^(%S+)%s*(.*)$")
+  if not cmd then cmd = "" rest = "" end
+  return cmd, rest
 end
 
 -------------------------------------------------
 -- Hook UseAction
 -------------------------------------------------
-local _orig = UseAction
-function UseAction(slot, check, selfcast)
-  if ROAR_SLOT and slot == ROAR_SLOT then
-    doRoar()
+local Orig_UseAction = UseAction
+function UseAction(slot, checkCursor, onSelf)
+  ensureLoaded()
+
+  if WATCH_SLOT and slot == WATCH_SLOT then
+    doRandomEmote()
   end
-  return _orig(slot, check, selfcast)
+
+  return Orig_UseAction(slot, checkCursor, onSelf)
 end
 
 -------------------------------------------------
--- Slash: /roar
+-- Slash Command (/roar)
 -------------------------------------------------
 SLASH_ROAR1 = "/roar"
 SlashCmdList["ROAR"] = function(raw)
-  local s = string.gsub(raw or "", "^%s+", "")
-  local cmd, rest = strmatch(s, "^(%S+)%s*(.-)$")
+  ensureLoaded()
 
+  local cmd, rest = split_cmd(raw)
 
   if cmd == "slot" then
     local n = tonumber(rest)
     if n then
-      ROAR_SLOT = n
+      WATCH_SLOT = n
       ensureDB().slot = n
-      chat("assigned action slot " .. n)
+      chat("Watching slot " .. n .. " (saved).")
     else
-      chat("usage: /roar slot <number>")
+      chat("Usage: /roar slot <number>")
     end
 
   elseif cmd == "chance" then
     local n = tonumber(rest)
-    if n then
-      if n < 0 then n = 0 elseif n > 100 then n = 100 end
+    if n and n >= 0 and n <= 100 then
       ROAR_CHANCE = n
       ensureDB().chance = n
-      chat("chance set to " .. n .. "%")
+      chat("Emote chance set to " .. n .. "%")
     else
-      chat("usage: /roar chance <0–100>")
+      chat("Usage: /roar chance <0-100>")
     end
 
-  elseif cmd == "cooldown" then
+  elseif cmd == "cd" then
     local n = tonumber(rest)
-    if n then
-      if n < 0 then n = 0 end
+    if n and n >= 0 and n <= 60 then
       ROAR_COOLDOWN = n
       ensureDB().cooldown = n
-      chat("cooldown set to " .. n .. "s")
+      chat("Cooldown set to " .. n .. " seconds")
     else
-      chat("usage: /roar cooldown <seconds>")
+      chat("Usage: /roar cd <0-60>")
     end
 
-  elseif cmd == "test" then
-    doRoar()
-
   elseif cmd == "info" then
-    chat("slot: " .. (ROAR_SLOT or "none"))
-    chat("chance: " .. ROAR_CHANCE .. "%")
-    chat("cooldown: " .. ROAR_COOLDOWN .. "s")
+    chat("Watching slot: " .. (WATCH_SLOT or "none"))
+    chat("Chance: " .. ROAR_CHANCE .. "% | Cooldown: " .. ROAR_COOLDOWN .. "s")
+    chat("Pool: " .. table.getn(ROAR_EMOTES) .. " emotes")
 
   elseif cmd == "reset" then
-    ROAR_SLOT = nil
-    local db = ensureDB()
-    db.slot = nil
-    chat("slot cleared")
+    WATCH_SLOT = nil
+    ensureDB().slot = nil
+    chat("Slot cleared.")
 
   else
-    chat("/roar slot <n> | /roar chance <0-100> | /roar cooldown <sec> | /roar test | /roar info | /roar reset")
+    chat("/roar slot <n> | chance <0-100> | cd <0-60> | info | reset")
   end
 end
 
@@ -124,24 +144,16 @@ end
 -- Init
 -------------------------------------------------
 local f = CreateFrame("Frame")
-f:RegisterEvent("VARIABLES_LOADED")
 f:RegisterEvent("PLAYER_LOGIN")
 f:RegisterEvent("PLAYER_LOGOUT")
 
 f:SetScript("OnEvent", function(self, event)
-  if event == "VARIABLES_LOADED" then
-    local db = ensureDB()
-    ROAR_SLOT     = db.slot or ROAR_SLOT
-    ROAR_CHANCE   = db.chance or ROAR_CHANCE
-    ROAR_COOLDOWN = db.cooldown or ROAR_COOLDOWN
-    chat("loaded; slot=" .. tostring(ROAR_SLOT or "none"))
-
-  elseif event == "PLAYER_LOGIN" then
+  if event == "PLAYER_LOGIN" then
     math.randomseed(math.floor(GetTime() * 1000)); math.random()
-
+    ensureLoaded()
   elseif event == "PLAYER_LOGOUT" then
     local db = ensureDB()
-    db.slot     = ROAR_SLOT
+    db.slot     = WATCH_SLOT
     db.chance   = ROAR_CHANCE
     db.cooldown = ROAR_COOLDOWN
   end
