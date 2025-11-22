@@ -66,7 +66,8 @@ end
 SLASH_ROAR1 = "/roar"
 SlashCmdList["ROAR"] = function(raw)
   local s = string.gsub(raw or "", "^%s+", "")
-  local cmd, rest = string.match(s, "^(%S+)%s*(.-)$")
+  local cmd, rest = strmatch(s, "^(%S+)%s*(.-)$")
+
 
   if cmd == "slot" then
     local n = tonumber(rest)
