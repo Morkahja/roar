@@ -3,7 +3,7 @@
 ## Notes: Automatic emote trigger addon (roar/charge/cheer/bored/flex)
 ## Author: You
 ## Version: 1.0.0
-## SavedVariables: ROARDB
+## SavedVariables: ROARRDB
 
 
-roar.lua
+roarr.lua
