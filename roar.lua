@@ -12,6 +12,7 @@ local EMOTE_POOL = {
 -- State
 -------------------------------------------------
 local WATCH_SLOT = nil
+local ROAR_ENABLED = true
 local WATCH_MODE = false
 local LAST_EMOTE_TIME = 0
 local ROAR_COOLDOWN = 6
@@ -84,7 +85,7 @@ function UseAction(slot, checkCursor, onSelf)
   if WATCH_MODE then
     chat("pressed slot " .. tostring(slot))
   end
-  if WATCH_SLOT and slot == WATCH_SLOT then
+  if ROAR_ENABLED and WATCH_SLOT and slot == WATCH_SLOT then
     maybeEmoteNow()
   end
   return _Orig_UseAction(slot, checkCursor, onSelf)
@@ -132,6 +133,23 @@ SlashCmdList["ROAR"] = function(raw)
       chat("usage: /roar cd <seconds>")
     end
 
+  elseif cmd == "off" then
+    ROAR_ENABLED = false
+    chat("ROAR disabled.")
+
+  elseif cmd == "on" then
+    ROAR_ENABLED = true
+    chat("ROAR enabled.")
+
+  elseif cmd == "tutorial" then
+    chat("ROAR tutorial:")
+    chat("1. Use /roar watch and press your action bar buttons to see their slot numbers.")
+    chat("2. Set the watched slot with /roar slot <n>.")
+    chat("3. Adjust chance with /roar chance <0-100>.")
+    chat("4. Adjust cooldown with /roar cd <seconds>.")
+    chat("5. Toggle with /roar on or /roar off.")
+    chat("6. Use /roar info to see current settings.")
+
   elseif cmd == "info" then
     chat("watching slot: " .. (WATCH_SLOT and tostring(WATCH_SLOT) or "none"))
     chat("chance: " .. tostring(roar_chance) .. "% | cooldown: " .. tostring(ROAR_COOLDOWN) .. "s | pool: " .. tostring(table.getn(EMOTE_POOL)))
@@ -149,7 +167,7 @@ SlashCmdList["ROAR"] = function(raw)
     chat("saved settings")
 
   else
-    chat("/roar slot <n> | watch | chance <0-100> | cd <sec> | info | reset | save")
+    chat("/roar slot <n> | watch | chance <0-100> | cd <sec> | info | reset | save | on | off | tutorial "))
   end
 end
 
