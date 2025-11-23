@@ -1,6 +1,6 @@
 ## Interface: 11200
-## Title: ROAR
-## Notes: Automatic emote trigger addon (roar/charge/cheer/bored/flex)
+## Title: ROARR
+## Notes: Automatic emote trigger addon /roarr(roar/charge/cheer/bored/flex)
 ## Author: You
 ## Version: 1.0.0
 ## SavedVariables: ROARRDB
