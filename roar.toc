@@ -1,0 +1,9 @@
+## Interface: 11200
+## Title: ROARR
+##  Notes: Emotes when using a watched action slot. Slash command: /raorr
+##  Author: YourName
+##  Version: 1.1
+##  SavedVariables: ROARDB
+
+
+roar.lua

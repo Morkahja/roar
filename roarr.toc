@@ -1,9 +1,0 @@
-## Interface: 11200
-## Title: ROARR
-## Notes: Automatic emote trigger addon /roar(roar/charge/cheer/bored/flex)
-## Author: You
-## Version: 1.0.0
-## SavedVariables: ROARDB
-
-
-roar.lua
