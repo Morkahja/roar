@@ -2,10 +2,10 @@
 -- SavedVariables: ROARRDB
 
 -------------------------------------------------
--- Emote Pool
+-- Emote Pool (must be lowercase for DoEmote)
 -------------------------------------------------
 local EMOTE_POOL = {
-  "ROAR", "CHARGE", "CHEER", "BORED", "FLEX",
+  "roar", "charge", "cheer", "bored", "flex",
 }
 
 -------------------------------------------------
@@ -77,10 +77,10 @@ local function split_cmd(raw)
 end
 
 -------------------------------------------------
--- Hook UseAction
+-- Hook UseAction (global override for Turtle WoW)
 -------------------------------------------------
 local _Orig_UseAction = UseAction
-function UseAction(slot, checkCursor, onSelf)
+UseAction = function(slot, checkCursor, onSelf)
   ensureLoaded()
   if WATCH_MODE then
     chat("pressed slot " .. tostring(slot))
@@ -180,7 +180,7 @@ f:RegisterEvent("PLAYER_LOGOUT")
 
 f:SetScript("OnEvent", function(self, event)
   if event == "PLAYER_LOGIN" then
-    math.randomseed(math.floor(GetTime() * 1000)); math.random()
+    math.randomseed(math.floor(GetTime() * 1000000)); math.random()
   elseif event == "PLAYER_LOGOUT" then
     local db = ensureDB()
     db.slot = WATCH_SLOT
