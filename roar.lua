@@ -1,11 +1,11 @@
--- ROAR v1.1
+-- ROARR v1.1
 -- Turtle/Vanilla Lua 5.0 SAFE
--- SavedVariables: ROARDB
+-- SavedVariables: ROARRDB
 
 -------------------------------------------------
 -- Emote pool
 -------------------------------------------------
-local ROAR_EMOTES = {
+local ROARR_EMOTES = {
   "ROAR", "CHEER", "CHARGE", "FLEX", "BORED"
 }
 
@@ -14,9 +14,9 @@ local ROAR_EMOTES = {
 -------------------------------------------------
 local WATCH_SLOT = nil
 local LAST_EMOTE = 0
-local ROAR_COOLDOWN = 5
-local ROAR_CHANCE = 100
-local ROAR_ENABLED = true
+local ROARR_COOLDOWN = 5
+local ROARR_CHANCE = 100
+local ROARR_ENABLED = true
 local WATCH_MODE = false
 
 -------------------------------------------------
@@ -24,13 +24,13 @@ local WATCH_MODE = false
 -------------------------------------------------
 local function chat(msg)
   if DEFAULT_CHAT_FRAME then
-    DEFAULT_CHAT_FRAME:AddMessage("|cffffaa33ROAR:|r " .. msg)
+    DEFAULT_CHAT_FRAME:AddMessage("|cffffaa33ROARR:|r " .. msg)
   end
 end
 
 local function ensureDB()
-  if type(ROARDB) ~= "table" then ROARDB = {} end
-  return ROARDB
+  if type(ROARRDB) ~= "table" then ROARRDB = {} end
+  return ROARRDB
 end
 
 local loaded_once = false
@@ -39,11 +39,11 @@ local function ensureLoaded()
   loaded_once = true
 
   local db = ensureDB()
-  WATCH_SLOT     = db.slot or WATCH_SLOT
-  ROAR_COOLDOWN  = db.cooldown or ROAR_COOLDOWN
-  ROAR_CHANCE    = db.chance or ROAR_CHANCE
-  ROAR_ENABLED   = db.enabled
-  WATCH_MODE     = db.watch
+  WATCH_SLOT       = db.slot or WATCH_SLOT
+  ROARR_COOLDOWN   = db.cooldown or ROARR_COOLDOWN
+  ROARR_CHANCE     = db.chance or ROARR_CHANCE
+  ROARR_ENABLED    = db.enabled
+  WATCH_MODE       = db.watch
 end
 
 local function pick(t)
@@ -53,14 +53,14 @@ local function pick(t)
 end
 
 local function doRandomEmote()
-  if not ROAR_ENABLED then return end
+  if not ROARR_ENABLED then return end
 
   local now = GetTime()
-  if now - LAST_EMOTE < ROAR_COOLDOWN then return end
+  if now - LAST_EMOTE < ROARR_COOLDOWN then return end
   LAST_EMOTE = now
 
-  if math.random(1, 100) <= ROAR_CHANCE then
-    local e = pick(ROAR_EMOTES)
+  if math.random(1, 100) <= ROARR_CHANCE then
+    local e = pick(ROARR_EMOTES)
     if e then DoEmote(e) end
   end
 end
@@ -95,10 +95,10 @@ function UseAction(slot, checkCursor, onSelf)
 end
 
 -------------------------------------------------
--- Slash Command (/roar)
+-- Slash Command (/raorr)
 -------------------------------------------------
-SLASH_ROAR1 = "/roar"
-SlashCmdList["ROAR"] = function(raw)
+SLASH_RAORR1 = "/raorr"
+SlashCmdList["RAORR"] = function(raw)
   ensureLoaded()
   local cmd, rest = split_cmd(raw)
 
@@ -109,35 +109,35 @@ SlashCmdList["ROAR"] = function(raw)
       ensureDB().slot = n
       chat("Watching slot " .. n .. " (saved).")
     else
-      chat("Usage: /roar slot <number>")
+      chat("Usage: /raorr slot <number>")
 
   elseif cmd == "chance" then
     local n = tonumber(rest)
     if n and n >= 0 and n <= 100 then
-      ROAR_CHANCE = n
+      ROARR_CHANCE = n
       ensureDB().chance = n
       chat("Emote chance set to " .. n .. "%")
     else
-      chat("Usage: /roar chance <0-100>")
+      chat("Usage: /raorr chance <0-100>")
 
   elseif cmd == "cd" then
     local n = tonumber(rest)
     if n and n >= 0 and n <= 60 then
-      ROAR_COOLDOWN = n
+      ROARR_COOLDOWN = n
       ensureDB().cooldown = n
       chat("Cooldown set to " .. n .. " seconds")
     else
-      chat("Usage: /roar cd <0-60>")
+      chat("Usage: /raorr cd <0-60>")
 
   elseif cmd == "on" then
-    ROAR_ENABLED = true
+    ROARR_ENABLED = true
     ensureDB().enabled = true
-    chat("ROAR enabled.")
+    chat("ROARR enabled.")
 
   elseif cmd == "off" then
-    ROAR_ENABLED = false
+    ROARR_ENABLED = false
     ensureDB().enabled = false
-    chat("ROAR disabled.")
+    chat("ROARR disabled.")
 
   elseif cmd == "watch" then
     WATCH_MODE = not WATCH_MODE
@@ -145,20 +145,20 @@ SlashCmdList["ROAR"] = function(raw)
     chat("Watch mode " .. (WATCH_MODE and "ON" or "OFF"))
 
   elseif cmd == "tutorial" then
-    chat("ROAR tutorial:")
-    chat("1. Use /roar watch and press your action bar buttons to see their slot numbers.")
-    chat("2. Set the watched slot with /roar slot <n>.")
-    chat("3. Adjust chance with /roar chance <0-100>.")
-    chat("4. Adjust cooldown with /roar cd <seconds>.")
-    chat("5. Toggle with /roar on or /roar off.")
-    chat("6. Use /roar info to see current settings.")
-    chat("7. Use /roar save to store current settings.")
+    chat("ROARR tutorial:")
+    chat("1. Use /raorr watch and press your action bar buttons to see their slot numbers.")
+    chat("2. Set the watched slot with /raorr slot <n>.")
+    chat("3. Adjust chance with /raorr chance <0-100>.")
+    chat("4. Adjust cooldown with /raorr cd <seconds>.")
+    chat("5. Toggle with /raorr on or /raorr off.")
+    chat("6. Use /raorr info to see current settings.")
+    chat("7. Use /raorr save to store current settings.")
 
   elseif cmd == "info" then
     chat("Watching slot: " .. (WATCH_SLOT or "none"))
-    chat("Chance: " .. ROAR_CHANCE .. "% | Cooldown: " .. ROAR_COOLDOWN .. "s")
-    chat("Enabled: " .. tostring(ROAR_ENABLED) .. " | Watch mode: " .. tostring(WATCH_MODE))
-    chat("Pool: " .. table.getn(ROAR_EMOTES) .. " emotes")
+    chat("Chance: " .. ROARR_CHANCE .. "% | Cooldown: " .. ROARR_COOLDOWN .. "s")
+    chat("Enabled: " .. tostring(ROARR_ENABLED) .. " | Watch mode: " .. tostring(WATCH_MODE))
+    chat("Pool: " .. table.getn(ROARR_EMOTES) .. " emotes")
 
   elseif cmd == "reset" then
     WATCH_SLOT = nil
@@ -167,15 +167,15 @@ SlashCmdList["ROAR"] = function(raw)
 
   elseif cmd == "save" then
     local db = ensureDB()
-    db.slot     = WATCH_SLOT
-    db.chance   = ROAR_CHANCE
-    db.cooldown = ROAR_COOLDOWN
-    db.enabled  = ROAR_ENABLED
-    db.watch    = WATCH_MODE
+    db.slot       = WATCH_SLOT
+    db.chance     = ROARR_CHANCE
+    db.cooldown   = ROARR_COOLDOWN
+    db.enabled    = ROARR_ENABLED
+    db.watch      = WATCH_MODE
     chat("Settings saved.")
 
   else
-    chat("/roar slot <n> | chance <0-100> | cd <0-60> | info | reset | on | off | watch | tutorial | save")
+    chat("/raorr slot <n> | chance <0-100> | cd <0-60> | info | reset | on | off | watch | tutorial | save")
   end
 end
 
@@ -192,10 +192,10 @@ f:SetScript("OnEvent", function(self, event)
     ensureLoaded()
   elseif event == "PLAYER_LOGOUT" then
     local db = ensureDB()
-    db.slot     = WATCH_SLOT
-    db.chance   = ROAR_CHANCE
-    db.cooldown = ROAR_COOLDOWN
-    db.enabled  = ROAR_ENABLED
-    db.watch    = WATCH_MODE
+    db.slot       = WATCH_SLOT
+    db.chance     = ROARR_CHANCE
+    db.cooldown   = ROARR_COOLDOWN
+    db.enabled    = ROARR_ENABLED
+    db.watch      = WATCH_MODE
   end
 end)
