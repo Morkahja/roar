@@ -3,7 +3,7 @@
 ##  Notes: Emotes when using a watched action slot. Slash command: /raorr
 ##  Author: YourName
 ##  Version: 1.1
-##  SavedVariables: ROARDB
+##  SavedVariables: ROARRDB
 
 
 roar.lua
