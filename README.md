@@ -1,6 +1,6 @@
-# ROAR Addon — Readme
+# ROARR Addon — Readme
 
-ROAR is a lightweight Turtle WoW addon that plays a random battle-themed emote whenever you press a specific action-bar button. It is fully configurable: slot, chance, cooldown, and enable/disable state.
+ROARR is a lightweight Turtle WoW addon that plays a random battle-themed emote whenever you press a specific action-bar button. It is fully configurable: slot, chance, cooldown, and enable/disable state.
 
 ## Features
 
@@ -13,7 +13,7 @@ ROAR is a lightweight Turtle WoW addon that plays a random battle-themed emote w
 
 ## Installation
 
-Place the folder **roar** inside:
+Place the folder **roarr** inside:
 
 ```
 Interface/AddOns/
@@ -21,14 +21,14 @@ Interface/AddOns/
 
 Make sure the folder contains:
 
-* `roar.lua`
-* `roar.toc`
+* `roarr.lua`
+* `roarr.toc`
 
 Restart your game.
 
 ## Commands
 
-Use `/roar` followed by a command:
+Use `/roarr` followed by a command:
 
 * **slot <n>** — sets which action slot triggers the emote
 * **watch** — prints slot numbers when pressing buttons
@@ -43,19 +43,19 @@ Use `/roar` followed by a command:
 Example setup:
 
 ```
-/roar watch
+/roarr watch
 # press your ability until you see its slot number
-/roar slot 3
-/roar chance 40
-/roar cd 12
-/roar on
+/roarr slot 3
+/roarr chance 40
+/roarr cd 12
+/roarr on
 ```
 
 ## How It Works
 
-ROAR hooks into the `UseAction` function. Each time you press your chosen action slot, the addon checks:
+ROARR hooks into the `UseAction` function. Each time you press your chosen action slot, the addon checks:
 
-* Is ROAR enabled?
+* Is ROARR enabled?
 * Does the slot match your configured slot?
 * Is the cooldown ready?
 * Does the random chance succeed?
@@ -78,7 +78,7 @@ ROAR is created and maintained by **Babunigaming (Morkahja / Buxbrew)**.
 
 ## Emotes Used
 
-The ROAR addon draws from the following built‑in emotes when a trigger fires:
+The ROARR addon draws from the following built‑in emotes when a trigger fires:
 
 * **/roar** – Fierce shout.
 * **/charge** – Dynamic charge‑up animation.
