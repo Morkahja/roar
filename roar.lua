@@ -124,12 +124,12 @@ SlashCmdList["ROAR"] = function(raw)
 
   elseif cmd == "cd" then
     local n = tonumber(rest)
-    if n and n >= 0 and n <= 60 then
+    if n and n >= 0 then
       ROAR_COOLDOWN = n
       ensureDB().cooldown = n
       chat("cooldown set to " .. n .. "s")
     else
-      chat("usage: /roar cd <0-60>")
+      chat("usage: /roar cd <seconds>")
     end
 
   elseif cmd == "info" then
